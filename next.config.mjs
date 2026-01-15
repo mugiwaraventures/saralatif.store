@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Disable trailing slash redirect to avoid 307 errors on Stripe webhooks
+    skipTrailingSlashRedirect: true,
     images: {
         remotePatterns: [
             {
