@@ -25,7 +25,7 @@ export async function fetchProducts(): Promise<CreativeHubProduct[]> {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': CREATIVEHUB_API_KEY,
+                'Authorization': `ApiKey ${CREATIVEHUB_API_KEY}`,
             },
             body: JSON.stringify({
                 Page: 1,
@@ -65,7 +65,7 @@ export async function fetchProductById(id: number): Promise<CreativeHubProduct |
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${CREATIVEHUB_API_KEY}`,
+                'Authorization': `ApiKey ${CREATIVEHUB_API_KEY}`,
             },
         });
 
