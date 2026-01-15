@@ -94,10 +94,30 @@ export async function POST(request: NextRequest) {
             const firstName = nameParts[0] || 'Customer';
             const lastName = nameParts.slice(1).join(' ') || '';
 
+            // Country Mapping (PT -> 177)
+            const COUNTRY_ID_MAP: Record<string, number> = {
+                'PT': 177, // Portugal
+                'US': 225, // United States
+                'GB': 224, // United Kingdom
+                'ES': 67,  // Spain
+                'FR': 73,  // France
+                'DE': 80,  // Germany
+                'IT': 105, // Italy
+                'BR': 30,  // Brazil
+                // Add more common countries if needed
+            };
+
+            const countryCode = address.country || 'PT';
+            const countryId = COUNTRY_ID_MAP[countryCode] || 177; // Default to PT for now or lookup
+
+            console.log(`Resolving Country: ${countryCode} -> ID: ${countryId}`);
+
             // Build CreativeHub order
             const creativeHubOrder: CreativeHubOrder = {
                 ExternalRef: session.id,
                 Email: session.customer_details?.email || undefined,
+                FirstName: firstName,
+                LastName: lastName,
                 ShippingAddress: {
                     FirstName: firstName,
                     LastName: lastName,
@@ -106,21 +126,26 @@ export async function POST(request: NextRequest) {
                     City: address.city || '',
                     State: address.state || undefined,
                     PostCode: address.postal_code || '',
-                    CountryCode: address.country || 'PT', // Stripe gives ISO 2 char, safe to pass
+                    CountryId: countryId,
+                    CountryCode: countryCode,
                 },
-                Items: cartItems.map((item) => {
+                OrderItems: cartItems.map((item) => { // Renamed to OrderItems
                     // Prefer ID-based ordering if available
                     if (item.creativeHubProductId && item.creativeHubPrintOptionId) {
                         return {
                             ProductId: item.creativeHubProductId,
                             PrintOptionId: item.creativeHubPrintOptionId,
-                            Quantity: item.quantity
+                            Quantity: item.quantity,
+                            Attributes: {
+                                Paper: item.paper,
+                                Size: item.size
+                            }
                         };
                     }
                     // Fallback to SKU
                     return {
                         ExternalSku: item.sku,
-                        Quantity: item.quantity
+                        Quantity: item.quantity,
                     };
                 }),
             };

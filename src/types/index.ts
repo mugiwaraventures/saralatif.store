@@ -49,11 +49,18 @@ export interface CreativeHubOrderItem {
   ProductId?: number;
   PrintOptionId?: number;
   Quantity: number;
+  Attributes?: {
+    Paper?: string;
+    Size?: string;
+    Frame?: string;
+  };
 }
 
 export interface CreativeHubOrder {
   ExternalRef: string;
-  Email?: string; // Adding Email just in case
+  Email?: string;
+  FirstName?: string; // Root First Name
+  LastName?: string; // Root Last Name
   ShippingAddress: {
     FirstName: string;
     LastName: string;
@@ -62,7 +69,8 @@ export interface CreativeHubOrder {
     City: string;
     State?: string;
     PostCode: string;
-    CountryCode: string; // Changed from Country
+    CountryId?: number; // Integer ID expected by API
+    CountryCode?: string; // Fallback?
   };
-  Items: CreativeHubOrderItem[];
+  OrderItems: CreativeHubOrderItem[]; // Renamed from Items
 }
