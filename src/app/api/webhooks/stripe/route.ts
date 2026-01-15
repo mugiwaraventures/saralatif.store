@@ -43,13 +43,18 @@ export async function POST(request: NextRequest) {
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        console.log('Checkout session completed:', session.id);
+        console.log('=== Stripe Webhook: Checkout Session Completed ===');
+        console.log('Session ID:', session.id);
+        console.log('Session metadata:', JSON.stringify(session.metadata, null, 2));
+        console.log('Shipping details:', JSON.stringify((session as any).shipping_details, null, 2));
 
         try {
             // Parse cart items from metadata
             const cartItemsJson = session.metadata?.cartItems;
+            console.log('Cart items JSON:', cartItemsJson);
+
             if (!cartItemsJson) {
-                console.error('No cart items in session metadata');
+                console.error('❌ No cart items in session metadata');
                 return NextResponse.json({ received: true });
             }
 
