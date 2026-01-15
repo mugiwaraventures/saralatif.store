@@ -76,6 +76,8 @@ export async function POST(request: NextRequest) {
                 productId: string;
                 quantity: number;
                 sku: string;
+                creativeHubProductId?: number;
+                creativeHubPrintOptionId?: number;
                 paper: string;
                 size: string;
             }>;
@@ -105,14 +107,29 @@ export async function POST(request: NextRequest) {
                     postal_code: address.postal_code || '',
                     country: address.country || 'PT',
                 },
-                items: cartItems.map((item) => ({
-                    external_sku: item.sku,
-                    quantity: item.quantity,
-                    attributes: {
-                        paper: item.paper,
-                        size: item.size,
-                    },
-                })),
+                items: cartItems.map((item) => {
+                    // Prefer ID-based ordering if available
+                    if (item.creativeHubProductId && item.creativeHubPrintOptionId) {
+                        return {
+                            product_id: item.creativeHubProductId,
+                            print_option_id: item.creativeHubPrintOptionId,
+                            quantity: item.quantity,
+                            attributes: {
+                                paper: item.paper,
+                                size: item.size,
+                            }
+                        };
+                    }
+                    // Fallback to SKU if IDs missing (should not happen for synced products)
+                    return {
+                        external_sku: item.sku,
+                        quantity: item.quantity,
+                        attributes: {
+                            paper: item.paper,
+                            size: item.size,
+                        },
+                    };
+                }),
             };
 
             console.log('Creating CreativeHub order:', JSON.stringify(creativeHubOrder, null, 2));

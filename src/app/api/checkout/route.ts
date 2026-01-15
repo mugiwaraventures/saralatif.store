@@ -58,6 +58,8 @@ export async function POST(request: NextRequest) {
                         productId: item.product.id,
                         quantity: item.quantity,
                         sku: item.product.creativeHubSettings.sku,
+                        creativeHubProductId: item.product.creativeHubProductId,
+                        creativeHubPrintOptionId: item.product.creativeHubPrintOptionId,
                         paper: item.product.creativeHubSettings.paperId,
                         size: item.product.creativeHubSettings.size,
                     }))

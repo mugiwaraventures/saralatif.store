@@ -45,7 +45,9 @@ export interface ShippingAddress {
 }
 
 export interface CreativeHubOrderItem {
-  external_sku: string;
+  external_sku?: string;
+  product_id?: number;
+  print_option_id?: number;
   quantity: number;
   attributes: {
     paper: string;
