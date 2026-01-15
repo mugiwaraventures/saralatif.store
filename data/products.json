@@ -1,19 +1,4 @@
 {
-  "products": [
-    {
-      "id": "film-cat-a3",
-      "title": "Film Cat - A3",
-      "description": "Fine art print em papel Hahnemuhle Photo Rag. Impressao Giclee de alta qualidade. Tamanho A3 (29.7 x 42 cm).",
-      "price": 70,
-      "currency": "EUR",
-      "image": "https://app.creativehub.io/file-preview/api/file/pshubcontainer/eb962a02a73940d5b7a486b664e8a2a7/medium/9ef7549124d84e2a90cdc82a1c0a9caf.jpg",
-      "priceId": "price_TEST_FILM_CAT_A3",
-      "creativeHubSettings": {
-        "sku": "9ef7549124d84e2a90cdc82a1c0a9caf",
-        "paperId": "Hahnemuhle Photo Rag",
-        "size": "A3"
-      }
-    }
-  ],
-  "lastUpdated": "2026-01-14T13:52:57.060Z"
+  "products": [],
+  "lastUpdated": "2026-01-15T12:00:00.000Z"
 }
