@@ -72,5 +72,16 @@ export interface CreativeHubOrder {
     CountryId?: number; // Integer ID expected by API
     CountryCode?: string; // Fallback?
   };
+  BillingAddress?: {
+    FirstName: string;
+    LastName: string;
+    Line1: string;
+    Line2?: string;
+    City: string;
+    State?: string;
+    PostCode: string;
+    CountryId?: number;
+    CountryCode?: string;
+  };
   OrderItems: CreativeHubOrderItem[]; // Renamed from Items
 }

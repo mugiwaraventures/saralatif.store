@@ -129,17 +129,25 @@ export async function POST(request: NextRequest) {
                     CountryId: countryId,
                     CountryCode: countryCode,
                 },
-                OrderItems: cartItems.map((item) => { // Renamed to OrderItems
+                BillingAddress: {
+                    FirstName: firstName,
+                    LastName: lastName,
+                    Line1: address.line1 || '',
+                    Line2: address.line2 || undefined,
+                    City: address.city || '',
+                    State: address.state || undefined,
+                    PostCode: address.postal_code || '',
+                    CountryId: countryId,
+                    CountryCode: countryCode,
+                },
+                OrderItems: cartItems.map((item) => {
                     // Prefer ID-based ordering if available
                     if (item.creativeHubProductId && item.creativeHubPrintOptionId) {
                         return {
                             ProductId: item.creativeHubProductId,
                             PrintOptionId: item.creativeHubPrintOptionId,
-                            Quantity: item.quantity,
-                            Attributes: {
-                                Paper: item.paper,
-                                Size: item.size
-                            }
+                            Quantity: item.quantity
+                            // Attributes removed to avoid string mismatches (Implied by PrintOptionId)
                         };
                     }
                     // Fallback to SKU
