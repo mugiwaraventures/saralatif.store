@@ -41,6 +41,16 @@ export function getProductById(id: string): Product | undefined {
 }
 `;
 
+        // Write to file
+        try {
+            const filePath = join(process.cwd(), 'src', 'data', 'products.ts');
+            writeFileSync(filePath, fileContent, 'utf-8');
+            console.log('Successfully wrote products to:', filePath);
+        } catch (writeError) {
+            console.error('Error writing products file:', writeError);
+            throw new Error('Failed to write products file');
+        }
+
         return NextResponse.json({
             success: true,
             message: 'Products synced successfully',
