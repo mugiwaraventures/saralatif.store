@@ -4,29 +4,23 @@ import { Product } from '@/types';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-// Load products from JSON file on server-side
+// Load products from static file (Source of Truth)
 function getProducts(): Product[] {
-  const PRODUCTS_FILE = join(process.cwd(), 'data', 'products.json');
+  // Prepend base URL to images if not present
+  const BASE_IMAGE_URL = 'https://app.creativehub.io/file-preview/api/file/pshubcontainer/';
 
-  try {
-    if (existsSync(PRODUCTS_FILE)) {
-      const data = JSON.parse(readFileSync(PRODUCTS_FILE, 'utf-8'));
-      if (data.products && data.products.length > 0) {
-        return data.products;
-      }
-    }
-  } catch (error) {
-    console.error('Error reading products file:', error);
-  }
-
-  // Fallback to static products
-  return staticProducts;
+  return staticProducts.map(product => ({
+    ...product,
+    image: product.image.startsWith('http') ? product.image : `${BASE_IMAGE_URL}${product.image}`
+  }));
 }
 
 export const dynamic = 'force-dynamic';
 
 export default function Home() {
-  const products = getProducts();
+  const allProducts = getProducts();
+  // Display only first 6 products
+  const products = allProducts.slice(0, 6);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -48,11 +42,24 @@ export default function Home() {
             <p className="text-gray-500">Nenhum produto disponível no momento.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 mb-12">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {allProducts.length > 6 && (
+              <div className="text-center">
+                <a
+                  href="/gallery"
+                  className="inline-block px-8 py-3 border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition-colors duration-300 tracking-wider text-sm uppercase"
+                >
+                  See More
+                </a>
+              </div>
+            )}
+          </>
         )}
       </section>
 

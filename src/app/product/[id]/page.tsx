@@ -1,32 +1,30 @@
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { products as staticProducts, getProductById as getStaticProductById } from '@/data/products';
 import AddToCartButton from '@/components/AddToCartButton';
 import { Product } from '@/types';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 
-// Load products from JSON file on server-side
+// Source of Truth with Image Fix
 function getProducts(): Product[] {
-    const PRODUCTS_FILE = join(process.cwd(), 'data', 'products.json');
-
-    try {
-        if (existsSync(PRODUCTS_FILE)) {
-            const data = JSON.parse(readFileSync(PRODUCTS_FILE, 'utf-8'));
-            if (data.products && data.products.length > 0) {
-                return data.products;
-            }
-        }
-    } catch (error) {
-        console.error('Error reading products file:', error);
-    }
-
-    return staticProducts;
+    const BASE_IMAGE_URL = 'https://app.creativehub.io/file-preview/api/file/pshubcontainer/';
+    return staticProducts.map(product => ({
+        ...product,
+        image: product.image.startsWith('http') ? product.image : `${BASE_IMAGE_URL}${product.image}`
+    }));
 }
 
 function getProductById(id: string): Product | undefined {
     const products = getProducts();
-    return products.find(p => p.id === id) || getStaticProductById(id);
+    return products.find(p => p.id === id);
+}
+
+function getProductVariants(product: Product): Product[] {
+    if (!product.creativeHubProductId) return [];
+    const products = getProducts();
+    return products.filter(p =>
+        p.creativeHubProductId === product.creativeHubProductId &&
+        p.id !== product.id
+    ).sort((a, b) => a.price - b.price);
 }
 
 interface ProductPageProps {
@@ -57,6 +55,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
         notFound();
     }
 
+    const variants = getProductVariants(product);
+    // Combine current product + variants to show all options
+    const allVariants = [product, ...variants].sort((a, b) => a.price - b.price);
+
     return (
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
@@ -86,6 +88,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </p>
                     </div>
 
+                    {/* Size Selector */}
+                    {allVariants.length > 1 && (
+                        <div className="mb-8">
+                            <h3 className="text-sm font-medium tracking-wider text-gray-900 uppercase mb-3">
+                                Select Size
+                            </h3>
+                            <div className="flex flex-wrap gap-3">
+                                {allVariants.map((variant) => (
+                                    <a
+                                        key={variant.id}
+                                        href={`/product/${variant.id}`}
+                                        className={`px-4 py-2 border text-sm transition-colors duration-200 ${variant.id === product.id
+                                                ? 'border-gray-900 bg-gray-900 text-white'
+                                                : 'border-gray-300 text-gray-700 hover:border-gray-900'
+                                            }`}
+                                    >
+                                        {variant.creativeHubSettings.size}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <AddToCartButton product={product} />
 
                     {/* Product Details */}
@@ -101,6 +126,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             <div className="flex justify-between text-sm">
                                 <dt className="text-gray-500">Size</dt>
                                 <dd className="text-gray-900">{product.creativeHubSettings.size}</dd>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <dt className="text-gray-500">Dimensions</dt>
+                                <dd className="text-gray-900">{product.printOptionDescription || '-'}</dd>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <dt className="text-gray-500">Finish</dt>
